@@ -47,7 +47,6 @@ async def presenca(interaction: discord.Interaction):
             return
 
         now = sheets.register_presence(sheet, user_id, username)
-        history = sheets.get_monthly_history(sheet, user_id)
     except Exception as e:
         print(f'[ERROR] Sheets operation failed for user {user_id}: {e}')
         await interaction.followup.send(
@@ -59,6 +58,12 @@ async def presenca(interaction: discord.Interaction):
     horario_fmt = now.strftime('%H:%M')
     mes_ano = now.strftime('%m/%Y')
     mes_label = formatting.month_label(mes_ano)
+
+    try:
+        history = sheets.get_monthly_history(sheet, user_id)
+    except Exception as e:
+        print(f'[ERROR] get_monthly_history failed for user {user_id}: {e}')
+        history = []
 
     await interaction.followup.send(
         formatting.format_success(horario_fmt, data, mes_label, history, CHANNEL_IDS)

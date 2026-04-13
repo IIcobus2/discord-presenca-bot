@@ -54,8 +54,12 @@ def register_presence(sheet, user_id: str, username: str):
 def get_monthly_history(sheet, user_id: str):
     """Retorna lista de {'data', 'horario'} do usuário no mês atual."""
     mes_ano = _now().strftime('%m/%Y')
+    records = sheet.get_all_records(value_render_option='FORMATTED_VALUE')
+    print(f'[DEBUG] get_monthly_history: {len(records)} registros, mes_ano={mes_ano}')
+    if records:
+        print(f'[DEBUG] Chaves do primeiro registro: {list(records[0].keys())}')
     return [
         {'data': r['data'], 'horario': r['horario']}
-        for r in sheet.get_all_records()
+        for r in records
         if str(r['user_id']) == str(user_id) and r['mes_ano'] == mes_ano
     ]

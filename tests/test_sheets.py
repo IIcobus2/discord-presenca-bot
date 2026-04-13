@@ -52,6 +52,16 @@ def test_already_registered_today_false_different_user():
     assert horario is None
 
 
+def test_already_registered_today_false_past_day():
+    sheet = make_sheet([
+        {'user_id': '123', 'username': 'Ana', 'data': '01/01/2020',
+         'horario': '09:00', 'mes_ano': '01/2020'}
+    ])
+    registered, horario = sheets.already_registered_today(sheet, '123')
+    assert registered is False
+    assert horario is None
+
+
 def test_register_presence_appends_row():
     sheet = make_sheet([])
     sheets.register_presence(sheet, '123', 'Ana')

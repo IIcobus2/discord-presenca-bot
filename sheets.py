@@ -4,7 +4,6 @@ from datetime import datetime
 
 import gspread
 import pytz
-from google.oauth2.service_account import Credentials
 
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
@@ -13,9 +12,14 @@ SCOPES = [
 
 
 def get_sheet():
-    creds_json = json.loads(os.environ['GOOGLE_CREDENTIALS'])
-    creds = Credentials.from_service_account_info(creds_json, scopes=SCOPES)
-    client = gspread.authorize(creds)
+    raw = os.environ.get('GOOGLE_CREDENTIALS', '')
+    if not raw or raw.strip() == '{}':
+        raise RuntimeError(
+            "GOOGLE_CREDENTIALS environment variable is not set or is empty. "
+            "Set it to the JSON content of your Google Service Account key file."
+        )
+    creds_json = json.loads(raw)
+    client = gspread.service_account_from_dict(creds_json, scopes=SCOPES)
     spreadsheet = client.open_by_key(os.environ['SPREADSHEET_ID'])
     return spreadsheet.worksheet('Presenças')
 

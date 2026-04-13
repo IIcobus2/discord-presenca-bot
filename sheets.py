@@ -32,7 +32,10 @@ def _now():
 def already_registered_today(sheet, user_id: str):
     """Retorna (True, 'HH:MM', 'DD/MM/YYYY') se já registrou hoje, senão (False, None, 'DD/MM/YYYY')."""
     today = _now().strftime('%d/%m/%Y')
-    for row in sheet.get_all_records():
+    records = sheet.get_all_records(value_render_option='FORMATTED_VALUE')
+    if records:
+        print(f'[DEBUG] already_registered_today: chaves={list(records[0].keys())}')
+    for row in records:
         if str(row['user_id']) == str(user_id) and row['data'] == today:
             return True, row['horario'], today
     return False, None, today

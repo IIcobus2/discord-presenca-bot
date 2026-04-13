@@ -30,12 +30,12 @@ def _now():
 
 
 def already_registered_today(sheet, user_id: str):
-    """Retorna (True, 'HH:MM') se já registrou hoje, senão (False, None)."""
+    """Retorna (True, 'HH:MM', 'DD/MM/YYYY') se já registrou hoje, senão (False, None, 'DD/MM/YYYY')."""
     today = _now().strftime('%d/%m/%Y')
     for row in sheet.get_all_records():
         if str(row['user_id']) == str(user_id) and row['data'] == today:
-            return True, row['horario']
-    return False, None
+            return True, row['horario'], today
+    return False, None, today
 
 
 def register_presence(sheet, user_id: str, username: str):

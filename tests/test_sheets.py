@@ -30,16 +30,18 @@ def test_already_registered_today_true():
         {'user_id': '123', 'username': 'Ana', 'data': today(),
          'horario': '09:00', 'mes_ano': mes_ano()}
     ])
-    registered, horario = sheets.already_registered_today(sheet, '123')
+    registered, horario, data = sheets.already_registered_today(sheet, '123')
     assert registered is True
     assert horario == '09:00'
+    assert data == today()
 
 
 def test_already_registered_today_false_empty():
     sheet = make_sheet([])
-    registered, horario = sheets.already_registered_today(sheet, '123')
+    registered, horario, data = sheets.already_registered_today(sheet, '123')
     assert registered is False
     assert horario is None
+    assert data == today()
 
 
 def test_already_registered_today_false_different_user():
@@ -47,7 +49,7 @@ def test_already_registered_today_false_different_user():
         {'user_id': '999', 'username': 'Outro', 'data': today(),
          'horario': '09:00', 'mes_ano': mes_ano()}
     ])
-    registered, horario = sheets.already_registered_today(sheet, '123')
+    registered, horario, data = sheets.already_registered_today(sheet, '123')
     assert registered is False
     assert horario is None
 
@@ -57,7 +59,7 @@ def test_already_registered_today_false_past_day():
         {'user_id': '123', 'username': 'Ana', 'data': '01/01/2020',
          'horario': '09:00', 'mes_ano': '01/2020'}
     ])
-    registered, horario = sheets.already_registered_today(sheet, '123')
+    registered, horario, data = sheets.already_registered_today(sheet, '123')
     assert registered is False
     assert horario is None
 

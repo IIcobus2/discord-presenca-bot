@@ -1,8 +1,10 @@
 import os
+from datetime import datetime
 
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
+import pytz
 
 import sheets
 import formatting
@@ -31,44 +33,42 @@ async def presenca(interaction: discord.Interaction):
 
     await interaction.response.defer()
 
+    user_id = str(interaction.user.id)
+    username = str(interaction.user)
+
     try:
         sheet = sheets.get_sheet()
-    except Exception:
+        registered, horario, today = sheets.already_registered_today(sheet, user_id)
+        if registered:
+            await interaction.followup.send(
+                formatting.format_already_registered(horario, today), ephemeral=True
+            )
+            return
+
+        now = sheets.register_presence(sheet, user_id, username)
+        history = sheets.get_monthly_history(sheet, user_id)
+    except Exception as e:
+        print(f'[ERROR] Sheets operation failed for user {user_id}: {e}')
         await interaction.followup.send(
             '❌ Não foi possível conectar ao Google Sheets. Tente novamente mais tarde.'
         )
         return
 
-    user_id = str(interaction.user.id)
-    username = str(interaction.user)
-
-    registered, horario = sheets.already_registered_today(sheet, user_id)
-    if registered:
-        from datetime import datetime
-        import pytz
-        tz = pytz.timezone(os.environ.get('TIMEZONE', 'America/Sao_Paulo'))
-        today = datetime.now(tz).strftime('%d/%m/%Y')
-        await interaction.followup.send(
-            formatting.format_already_registered(horario, today), ephemeral=True
-        )
-        return
-
-    now = sheets.register_presence(sheet, user_id, username)
-    history = sheets.get_monthly_history(sheet, user_id)
-
     data = now.strftime('%d/%m/%Y')
-    horario = now.strftime('%H:%M')
+    horario_fmt = now.strftime('%H:%M')
     mes_ano = now.strftime('%m/%Y')
     mes_label = formatting.month_label(mes_ano)
 
     await interaction.followup.send(
-        formatting.format_success(horario, data, mes_label, history, CHANNEL_IDS)
+        formatting.format_success(horario_fmt, data, mes_label, history, CHANNEL_IDS)
     )
 
 
 @client.event
 async def on_ready():
-    await tree.sync()
+    if os.environ.get('SYNC_COMMANDS') == '1':
+        await tree.sync()
+        print('Slash commands sincronizados.')
     print(f'Bot online como {client.user}')
 
 

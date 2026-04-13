@@ -33,8 +33,6 @@ def already_registered_today(sheet, user_id: str):
     """Retorna (True, 'HH:MM', 'DD/MM/YYYY') se já registrou hoje, senão (False, None, 'DD/MM/YYYY')."""
     today = _now().strftime('%d/%m/%Y')
     records = sheet.get_all_records(value_render_option='FORMATTED_VALUE')
-    if records:
-        print(f'[DEBUG] already_registered_today: chaves={list(records[0].keys())}')
     for row in records:
         if str(row['user_id']) == str(user_id) and row['data'] == today:
             return True, row['horario'], today
@@ -58,9 +56,6 @@ def get_monthly_history(sheet, user_id: str):
     """Retorna lista de {'data', 'horario'} do usuário no mês atual."""
     mes_ano = _now().strftime('%m/%Y')
     records = sheet.get_all_records(value_render_option='FORMATTED_VALUE')
-    print(f'[DEBUG] get_monthly_history: {len(records)} registros, mes_ano={mes_ano}')
-    if records:
-        print(f'[DEBUG] Chaves do primeiro registro: {list(records[0].keys())}')
     return [
         {'data': r['data'], 'horario': r['horario']}
         for r in records

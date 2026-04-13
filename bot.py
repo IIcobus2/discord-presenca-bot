@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 
 import discord
@@ -72,4 +73,5 @@ async def on_ready():
     print(f'Bot online como {client.user}')
 
 
+time.sleep(5)  # prevent rapid restart loops from rate-limiting Discord
 client.run(os.environ['DISCORD_TOKEN'])
